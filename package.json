@@ -1,0 +1,23 @@
+{
+  "name": "modulo_dos",
+  "version": "1.0.0",
+  "description": "Segunda entrega Curso NodeJS",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app -e js,hbs"
+  },
+  "keywords": [],
+  "author": "Juan Mario Valderrama",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "bootstrap": "^4.3.1",
+    "express": "^4.16.4",
+    "hbs": "^4.0.3",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
+}
