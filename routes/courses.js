@@ -27,6 +27,11 @@ router.post('/list-users', (req, res) => {
   res.render('courses/enrolled');
 });
 
+router.post('/close-course', (req, res) => {
+  courses.closeCourse(req.body.id);
+  res.redirect('/');
+});
+
 router.get('/table', (req, res) => {
   courses.checkMessage(req.method);
   res.render('courses/table');

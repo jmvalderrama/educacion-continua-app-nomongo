@@ -53,6 +53,13 @@ const updateInJSON = newList => {
   });
 };
 
+const updateCourses = newList => {
+  let data = JSON.stringify(newList);
+  fs.writeFile(__dirname + '/../courses.json', data, err => {
+    if (err) throw err;
+  });
+};
+
 const checkMessage = method => {
   if (method == 'GET') {
     message = '';
@@ -131,6 +138,18 @@ const searchCourse = course => {
   });
 };
 
+hbs.registerHelper('courseState', () => {
+  if (usersEnrolled.length > 0) {
+    let course = coursesList.find(item => item.id == courseSelected);
+    let state = `<form action="/courses/close-course" method="POST" class="mb-4"><div class="form-row"><div class="form-group col-md-6"><strong>Estado: </strong>${
+      course.state == 'available' ? 'Disponible' : 'Cerrado'
+    }<input type="hidden" name="id" id="id" value="${
+      course.id
+    }" class="form-control"/><button type="submit" style="margin-left: 1rem;" onclick="confirm('¿Estás seguro de cerrar este curso?');" class="btn btn-warning">Cerrar</button></div></div></form>`;
+    return state;
+  }
+});
+
 hbs.registerHelper('listEnrolled', () => {
   if (usersEnrolled.length > 0) {
     let course = coursesList.find(item => item.id == courseSelected);
@@ -177,9 +196,19 @@ const deleteUser = (userId, courseId) => {
   updateInJSON(usersList);
 };
 
+const closeCourse = courseId => {
+  coursesList.forEach(item => {
+    if (item.id == courseId) {
+      item.state = 'closed';
+    }
+  });
+  updateCourses(coursesList);
+};
+
 module.exports = {
   createCourse,
   checkMessage,
   searchCourse,
-  deleteUser
+  deleteUser,
+  closeCourse
 };
