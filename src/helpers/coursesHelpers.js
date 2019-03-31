@@ -3,7 +3,9 @@ const fs = require('fs');
 const hbs = require('hbs');
 
 coursesList = [];
-let message, className, display, isAdded;
+const usersList = require('../../src/users.json');
+let usersEnrolled = [];
+let message, className, display, isAdded, courseSelected;
 
 const isCreated = () => {
   try {
@@ -44,6 +46,13 @@ const saveInJSON = () => {
   });
 };
 
+const updateInJSON = newList => {
+  let data = JSON.stringify(newList);
+  fs.writeFile(__dirname + '/../users.json', data, err => {
+    if (err) throw err;
+  });
+};
+
 const checkMessage = method => {
   if (method == 'GET') {
     message = '';
@@ -58,16 +67,16 @@ hbs.registerHelper('messageInfo', () => {
 
 hbs.registerHelper('table', () => {
   isCreated();
-  let coursesTable = `<table class="table table-hover">\
-  <thead class="bg-success">\
-  <th>Id</th>\
-  <th>Nombre</th>\
-  <th>Descripción</th>\
-  <th>Valor</th>\
-  <th>Modalidad</th>\
-  <th>Intensidad</th>\
-  <th>Estado</th>\
-  </thead>\
+  let coursesTable = `<table class="table table-hover">
+  <thead class="bg-success">
+  <th>Id</th>
+  <th>Nombre</th>
+  <th>Descripción</th>
+  <th>Valor</th>
+  <th>Modalidad</th>
+  <th>Intensidad</th>
+  <th>Estado</th>
+  </thead>
   <tbody>`;
 
   coursesList.forEach(course => {
@@ -94,58 +103,83 @@ hbs.registerHelper('table', () => {
   return coursesTable;
 });
 
-hbs.registerHelper('list', () => {
+hbs.registerHelper('courseSelect', () => {
   isCreated();
-  let coursesCollapse = `<div class="accordion" id="accordionExample">`;
-  i = 0;
+  let selectCourse = `<select class="form-control" id="id" name="id"><option value="-" selected></option>`;
+
   coursesList.forEach(course => {
     if (course.state == 'available') {
-      coursesCollapse =
-        coursesCollapse +
-        `<div class="card">
-      <div class="card-header" id="heading${i}">
-        <h2 class="mb-0">
-          <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse${i}" aria-expanded="true" aria-controls="collapse${i}">
-            <p class="text-left"><span class="text-decoration-none"><strong>Nombre del curso: </strong>${
-              course.name
-            }</span><br>
-            <span class="text-decoration-none"><strong>Descripción: </strong>${
-              course.description
-            }</span><br>
-            <span class="text-decoration-none"><strong>Valor: </strong>$${
-              course.price
-            }</span></p>
-          </button>
-        </h2>
-      </div>
-  
-      <div id="collapse${i}" class="collapse" aria-labelledby="heading${i}" data-parent="#accordionExample">
-        <div class="card-body">
-          <span><strong>Nombre del curso: </strong>${course.name}</span><br>
-          <span><strong>Descripción: </strong>${course.description}</span><br>
-          <span><strong>Valor: </strong>$${course.price}</span><br>
-          <span><strong>Modalidad: </strong>${
-            course.modality == '-'
-              ? '-'
-              : course.modality == 'virtual'
-              ? 'Virtual'
-              : 'Presencial'
-          }</span><br>
-          <span><strong>Intensidad: </strong>${
-            course.hours == '-' ? '-' : course.hours + ' horas'
-          }</span>
-        </div>
-      </div>
-    </div>`;
-      i++;
+      selectCourse =
+        selectCourse + `<option value="${course.id}">${course.name}</option>`;
     }
   });
 
-  coursesCollapse = coursesCollapse + '</div>';
-  return coursesCollapse;
+  selectCourse = selectCourse + '</select>';
+  return selectCourse;
 });
+
+const searchCourse = course => {
+  isCreated();
+  usersEnrolled = [];
+  courseSelected = -1;
+  usersList.forEach(user => {
+    let isEnrolled = user.courses.find(item => item == course.id);
+    if (isEnrolled) {
+      courseSelected = course.id;
+      usersEnrolled.push(user);
+    }
+  });
+};
+
+hbs.registerHelper('listEnrolled', () => {
+  if (usersEnrolled.length > 0) {
+    let course = coursesList.find(item => item.id == courseSelected);
+    let content = `<h3>Información del curso: ${
+      course.name
+    }</h3><br><table class="table table-hover">
+    <thead class="bg-success">
+    <th>Documento</th>
+    <th>Nombre</th>
+    <th>Correo</th>
+    <th>Teléfono</th>
+    <th>Acción</th>
+    </thead>
+    <tbody>`;
+    usersEnrolled.forEach(user => {
+      content =
+        content +
+        `<tr>
+      <td>${user.id}</td>
+      <td>${user.name}</td>
+      <td>${user.email}</td>
+      <td>${user.phone}</td>
+      <td><form method="POST" action="/courses/list-users"><input type="hidden" name="user" id="user" value="${
+        user.id
+      }"/><input type="hidden" name="course" id="course" value="${
+          course.id
+        }"/><button type="submit" onclick="confirm('¿Estás seguro de eliminar este registro?');" class="btn btn-danger">Eliminar</button></form></td>
+    </tr>`;
+    });
+    content = content + `</tbody></table>`;
+    return content;
+  } else {
+    return `<br><p>Ningún aspirante inscrito</p>`;
+  }
+});
+
+const deleteUser = (userId, courseId) => {
+  usersList.forEach(user => {
+    if (user.id == userId) {
+      let newCourses = user.courses.filter(course => course != courseId);
+      user.courses = newCourses;
+    }
+  });
+  updateInJSON(usersList);
+};
 
 module.exports = {
   createCourse,
-  checkMessage
+  checkMessage,
+  searchCourse,
+  deleteUser
 };

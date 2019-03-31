@@ -13,13 +13,23 @@ router.post('/new', (req, res) => {
   res.render('courses/table');
 });
 
+router.get('/enrolled', (req, res) => {
+  res.render('courses/enrolled');
+});
+
+router.get('/list-users', (req, res) => {
+  courses.searchCourse(req.query);
+  res.render('courses/list');
+});
+
+router.post('/list-users', (req, res) => {
+  courses.deleteUser(req.body.user, req.body.course);
+  res.render('courses/enrolled');
+});
+
 router.get('/table', (req, res) => {
   courses.checkMessage(req.method);
   res.render('courses/table');
-});
-
-router.get('/list', (req, res) => {
-  res.render('courses/list');
 });
 
 module.exports = router;
