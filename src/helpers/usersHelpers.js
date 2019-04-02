@@ -2,8 +2,8 @@ const fs = require('fs');
 
 const hbs = require('hbs');
 
-usersList = [];
-const coursesList = require('../../src/courses.json');
+let coursesList,
+  usersList = [];
 let message, className, display, isAdded;
 
 const isCreated = () => {
@@ -11,6 +11,14 @@ const isCreated = () => {
     usersList = require('../../src/users.json');
   } catch (error) {
     usersList = [];
+  }
+};
+
+const areCoursesCreated = () => {
+  try {
+    coursesList = require('../../src/courses.json');
+  } catch (error) {
+    coursesList = [];
   }
 };
 
@@ -74,6 +82,7 @@ hbs.registerHelper('userInfo', () => {
 });
 
 hbs.registerHelper('userSelect', () => {
+  areCoursesCreated();
   let selectCourse = `<select class="form-control" id="course" name="course"><option value="-" selected></option>`;
 
   coursesList.forEach(course => {
@@ -89,6 +98,7 @@ hbs.registerHelper('userSelect', () => {
 
 hbs.registerHelper('list', () => {
   isCreated();
+  areCoursesCreated();
   let coursesCollapse = `<div class="accordion" id="accordionExample">`;
   i = 0;
   coursesList.forEach(course => {

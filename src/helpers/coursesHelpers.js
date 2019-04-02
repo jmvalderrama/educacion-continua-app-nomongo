@@ -2,8 +2,8 @@ const fs = require('fs');
 
 const hbs = require('hbs');
 
-coursesList = [];
-const usersList = require('../../src/users.json');
+let coursesList,
+  usersList = [];
 let usersEnrolled = [];
 let message, className, display, isAdded, courseSelected;
 
@@ -12,6 +12,14 @@ const isCreated = () => {
     coursesList = require('../../src/courses.json');
   } catch (error) {
     coursesList = [];
+  }
+};
+
+const areUsersCreated = () => {
+  try {
+    usersList = require('../../src/users.json');
+  } catch (error) {
+    usersList = [];
   }
 };
 
@@ -127,6 +135,7 @@ hbs.registerHelper('courseSelect', () => {
 
 const searchCourse = course => {
   isCreated();
+  areUsersCreated();
   usersEnrolled = [];
   courseSelected = -1;
   usersList.forEach(user => {
@@ -187,6 +196,7 @@ hbs.registerHelper('listEnrolled', () => {
 });
 
 const deleteUser = (userId, courseId) => {
+  areUsersCreated();
   usersList.forEach(user => {
     if (user.id == userId) {
       let newCourses = user.courses.filter(course => course != courseId);
