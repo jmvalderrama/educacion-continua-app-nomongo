@@ -51,6 +51,10 @@ const enrollUser = user => {
     }
   } else {
     newUser.courses.push(parseInt(user.course));
+    message = `El aspirante ${
+      newUser.name
+    } ha sido inscrito al curso exitosamente`;
+    isAdded = true;
   }
   let isDuplicated = usersList.find(item => item.id == newUser.id);
   if (isDuplicated) {

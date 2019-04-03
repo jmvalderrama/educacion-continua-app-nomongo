@@ -143,25 +143,25 @@ const searchCourse = course => {
     if (isEnrolled) {
       courseSelected = course.id;
       usersEnrolled.push(user);
+    } else {
+      courseSelected = course.id;
     }
   });
 };
 
 hbs.registerHelper('courseState', () => {
-  if (usersEnrolled.length > 0) {
-    let course = coursesList.find(item => item.id == courseSelected);
-    let state = `<form action="/courses/close-course" method="POST" class="mb-4"><div class="form-row"><div class="form-group col-md-6"><strong>Estado: </strong>${
-      course.state == 'available' ? 'Disponible' : 'Cerrado'
-    }<input type="hidden" name="id" id="id" value="${
-      course.id
-    }" class="form-control"/><button type="submit" style="margin-left: 1rem;" onclick="confirm('¿Estás seguro de cerrar este curso?');" class="btn btn-warning">Cerrar</button></div></div></form>`;
-    return state;
-  }
+  let course = coursesList.find(item => item.id == courseSelected);
+  let state = `<form action="/courses/close-course" method="POST" class="mb-4"><div class="form-row"><div class="form-group col-md-6"><strong>Estado: </strong>${
+    course.state == 'available' ? 'Disponible' : 'Cerrado'
+  }<input type="hidden" name="id" id="id" value="${
+    course.id
+  }" class="form-control"/><button type="submit" style="margin-left: 1rem;" onclick="confirm('¿Estás seguro de cerrar este curso?');" class="btn btn-warning">Cerrar</button></div></div></form>`;
+  return state;
 });
 
 hbs.registerHelper('listEnrolled', () => {
+  let course = coursesList.find(item => item.id == courseSelected);
   if (usersEnrolled.length > 0) {
-    let course = coursesList.find(item => item.id == courseSelected);
     let content = `<h3>Información del curso: ${
       course.name
     }</h3><br><table class="table table-hover">
@@ -191,7 +191,10 @@ hbs.registerHelper('listEnrolled', () => {
     content = content + `</tbody></table>`;
     return content;
   } else {
-    return `<br><p>Ningún aspirante inscrito</p>`;
+    let content = `<h3>Información del curso: ${
+      course.name
+    }</h3><br><p>Ningún aspirante inscrito</p>`;
+    return content;
   }
 });
 

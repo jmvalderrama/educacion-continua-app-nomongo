@@ -4,6 +4,7 @@
   "description": "Segunda entrega Curso NodeJS",
   "main": "app.js",
   "scripts": {
+    "server": "node app -e js,hbs",
     "dev": "nodemon app -e js,hbs"
   },
   "keywords": [],

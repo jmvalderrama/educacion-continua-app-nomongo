@@ -15,6 +15,7 @@ router.get('/courses-list', (req, res) => {
 
 router.post('/new', (req, res) => {
   users.enrollUser(req.body);
+  users.checkMessage(req.method);
   res.render('users/confirm');
 });
 
